@@ -53,4 +53,27 @@ Other positive impacts of **Good Deedalous** supported by research might be:
     -   Small individual acts, when combined through location-based challenges, can lead to significant collective impact.
     -   The concept of the "butterfly effect" illustrates how small actions can have far-reaching consequences.
 
+Good Deedalous's Adventure is a web-app which is aimed at mobile users. The app was creating with vanilla HTML & javascript without any templates or frameworks. 
+
+Members of HAM focused hard on the design and concept of the application, and the benefits to the end user. Technically, HAM used the following tools to design and develop the application:
+
+ - Google FireBase
+ - Google Maps API
+ - Canva Pro
+ - VS Code
+ - GitHub CoPilot
+ - ChatGPT
+ - Manual tiresome labour
+ - Incredible research
+ - Fantastic visionary trance
+ - Oxytocin secretion
+ - CommerzBank's positive energy
+ - Basil seed pencils
+ - Free socks
+ - Pizza
+ - Sticker filled laptops
+ - CTU's awesome assistants
+
+We hope that Human Assisted Machines provides you with trusted set paths to adventure from start to finish, from Newbie to Local Legend, in aim of finding treasures and sharing the Good Deeds within the neighbourhood, whether you are a tourist, expat, local - we hope you enjoy our adventure.
+
 
