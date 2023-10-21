@@ -1,10 +1,10 @@
 
-# HAM_Good_Deedalous_Adventure
+# HAM_Deedalus Project
 Human Assisted Machines (Prague)
 consists of 5:
-**C**ristian, **C**ris, **A**rthur,**O**lga, Ja**s**on
+**C**ristian, **Ch**ris, **A**rthur,**O**lga, Ja**S**on
 
-**Good Deedalous's Adventure** is the codename for our *cultural adventures App*. Which guides you through local cultures, legends, challenges and charitable activities.
+**Deedalus Project** is the codename for our *cultural adventures App*. Which guides you through local cultures, legends, challenges and charitable activities.
 
 Did you know that doing a good deed creates oxytocin within the Good Deedalous' body? But not only that! The reciever of a good deed also recieved oxytocin and further to that, people who witness a good deed also recieve a small dose!
 
@@ -17,9 +17,9 @@ Did you know that doing a good deed creates oxytocin within the Good Deedalous' 
  - overall psychological stability.
  
  
-**Good Deedalous's Adventure** encourages you & your friends and family to explore and learn more about the local culture, history and events that can help have a positive impact on your own and others well-being.
+**Deedalus Project** encourages you & your friends and family to explore and learn more about the local culture, history and events that can help have a positive impact on your own and others well-being.
 
-Other positive impacts of **Good Deedalous** supported by research might be:
+Other positive impacts of **Deedalus Project** supported by research might be:
 1.  **Community Engagement**:
     
     -    Community engagement through location-based challenges fosters a sense of belonging and connection.
@@ -53,7 +53,7 @@ Other positive impacts of **Good Deedalous** supported by research might be:
     -   Small individual acts, when combined through location-based challenges, can lead to significant collective impact.
     -   The concept of the "butterfly effect" illustrates how small actions can have far-reaching consequences.
 
-Good Deedalous's Adventure is a web-app which is aimed at mobile users. The app was creating with vanilla HTML & javascript without any templates or frameworks. 
+Deedalus Project is a web-app which is aimed at mobile users. The app was creating with vanilla HTML & javascript without any templates or frameworks. 
 
 Members of HAM focused hard on the design and concept of the application, and the benefits to the end user. Technically, HAM used the following tools to design and develop the application:
 
