@@ -333,6 +333,24 @@ async function initMap() {
                 console.log("Error getting user document:", error);
             });
 
+            // add a logout button in the user info bar
+            document.getElementById("user-info-bar").innerHTML += '<button id="logout-button">Logout</button>';
+            // add a listener for the logout button
+            document.getElementById("logout-button").addEventListener("click", function () {
+                firebase
+                    .auth()
+                    .signOut()
+                    .then(function () {
+                        // Sign-out successful.
+                        console.log("User signed out");
+                        // redirect to index.html
+                        window.location.href = "index.html";
+                    })
+                    .catch(function (error) {
+                        // An error happened
+                        console.log("Error signing out: " + error.message);
+                    });
+            });
   // add a map AND FILL it with the map_demo.png
   document.body.innerHTML += '<div id="map"></div>';
   // add a button section

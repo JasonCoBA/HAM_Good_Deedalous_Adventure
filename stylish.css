@@ -59,6 +59,7 @@ body {
     top: 280px;
     left: 50%;
     transform: translateX(-50%);
+    z-index: 1;
 }
 
 input[type="text"] {
@@ -97,11 +98,13 @@ input[type="submit"] {
 #map {
     height: 90%;
     width: 90%;
+    top: 10%;
     background-color: #c5eba2d5;
     /* Light green with transparency */
     border: 2px solid #000;
     border-radius: 5px;
     margin: 0;
+    z-index: -1;
     /* Removed margin */
 }
 

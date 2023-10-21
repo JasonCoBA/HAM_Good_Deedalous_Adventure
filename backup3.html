@@ -1,0 +1,553 @@
+<title> Explorer </title>
+<!-- optimize layout for mobile devices-->
+<meta name="viewport" content="width=device-width, initial-scale=0.6">
+//import style
+<link rel="stylesheet" href="stylish.css">
+
+<button id="google-signin-button">&#128526;Login with Google</button>
+
+<script src="https://www.gstatic.com/firebasejs/8.7.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.7.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.7.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.7.0/firebase-firestore.js"></script>
+
+<script>
+
+  let map;
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyAR3Pg3CXwL3O4wwmDYSGEXP3FBceQi3Dg",
+    authDomain: "ham-prg.firebaseapp.com",
+    projectId: "ham-prg",
+    storageBucket: "ham-prg.appspot.com",
+    messagingSenderId: "783612161386",
+    appId: "1:783612161386:web:78153c2ba0aed46e51c913",
+    measurementId: "G-XCB39N4N8Z"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+
+  // Initialize Firebase
+  document.getElementById("google-signin-button").addEventListener("click", function () {
+    var provider = new firebase.auth.GoogleAuthProvider();
+
+    firebase
+      .auth()
+      .signInWithPopup(provider)
+      .then(function (result) {
+        // User signed in with Google
+        var user = result.user;
+        console.log("Google Sign-In Successful");
+        console.log("User ID: " + user.uid);
+
+        // empty body, set the page backgroundoad the welcome.gif
+        //clear body
+        document.body.innerHTML = "";
+        document.body.innerHTML = '<img src="welcome.gif" alt="welcome" style="width:100%;height:100%;object-fit:cover;">';
+        // check if user already had firebase data or not
+        var db = firebase.firestore();
+        var docRef = db.collection("users").doc(user.uid);
+        docRef
+          .get()
+          .then(function (doc) {
+            if (doc.exists) {
+              // user already has data in firestore
+              console.log("User data:", doc.data());
+              // wait 2 seconds, then  load map
+              setTimeout(function () {
+                loadMap();
+              }, 800);
+
+            } else {
+              // user does not have data in firestore
+              console.log("No user data found");
+              document.body.innerHTML = "";
+              document.body.style.backgroundImage = 'url("create.gif")';
+              document.body.style.backgroundSize = 'cover';
+              document.body.style.backgroundPosition = 'center';
+              document.body.style.backgroundRepeat = 'no-repeat';
+              //ask user what their nickname is 
+              document.body.innerHTML += '<form id="user-data-form"><input type="text" id="name" placeholder="Enter your nickname" required><input type="submit" value="Submit"></form></div>';
+
+
+              // listen for form submission
+              document.getElementById("user-data-form").addEventListener("submit", function (event) {
+                event.preventDefault();
+                // get form data
+                var name = document.getElementById("name").value;
+                var rank = "newbie"
+                // write to firestore
+                db.collection("users")
+                  .doc(user.uid)
+                  .set({
+                    name: name,
+                    rank: rank,
+                  })
+                  .then(function () {
+                    console.log("New user document successfully written!");
+                    // wait 2 seconds, then redirect to map.html
+                    setTimeout(function () {
+                      // clear the body
+                      document.body.innerHTML = "";
+                      // load the get_started.gif
+                      document.body.innerHTML = "";
+                      document.body.style.backgroundImage = 'url("get_started.gif")';
+                      document.body.style.backgroundSize = 'cover';
+                      document.body.style.backgroundPosition = 'center';
+                      document.body.style.backgroundRepeat = 'no-repeat';
+                      // add a continue button
+                      document.body.innerHTML += '<button id="continue-button">Continue</button>';
+                      // if button is clicked, clear body 
+
+                      document.getElementById("continue-button").addEventListener("click", function () {
+                        loadMap();
+                      });
+                    }, 800);
+                  })
+                  .catch(function (error) {
+                    console.error("Error writing new user document: ", error);
+                  });
+              });
+
+
+            }
+          })
+          .catch(function (error) {
+            console.log("Error getting user document:", error);
+          });
+      })
+      .catch(function (error) {
+        // Handle errors
+        console.error("Google Sign-In Failed: " + error.message);
+      });
+  });
+
+  ///defaults
+
+  iconUrl = "Quiz.png";
+  function updateCategory(category) {
+    selectedCategory = category;
+    // update the icon url filename to match the selected category
+    iconUrl = category + ".png";
+
+    console.log(selectedCategory);
+    initMap();
+  }
+
+
+  async function initMap() {
+    const { Map } = await google.maps.importLibrary("maps");
+
+    //get Challenges collection from the firebase database that we will add to the map
+    var db = firebase.firestore();
+      var challenges = db.collection("Challenges");
+      //get all the challenges from the database
+      challenges.get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+
+          //get the data from the database
+          var challenge = doc.data();
+          //console.log(challenge)
+          //get the location of the challenge
+          var challengeLocation = challenge.location;
+          console.log(challengeLocation);
+          //get the name of the challenge
+          var name = challenge.name;
+          //get the description of the challenge
+          var description = challenge.description;
+          //get the category of the challenge
+          var type = challenge.type;
+          //get the q1 of the challenge
+          var q1 = challenge.q1;
+          //get the q2 of the challenge
+          var q2 = challenge.q2;
+          //get the q3 of the challenge
+          var q3 = challenge.q3;
+          // get the a1 of the challenge
+          var a1 = challenge.a1;
+          // get the a2 of the challenge
+          var a2 = challenge.a2;
+          // get the a3 of the challenge
+          var a3 = challenge.a3;
+
+          // if the challenge is of the selected category, add it to the map
+          if (type == selectedCategory) {
+            // Define the custom marker icon
+            var markerIcon = {
+              url: iconUrl
+            };
+
+            // Define the marker position
+            var markerPosition = new google.maps.LatLng(50.1044558, 14.3893992);
+
+            // Create the marker object with the custom icon and position
+            var marker = new google.maps.Marker({
+              position: markerPosition,
+              icon: markerIcon,
+              map: map
+            });
+
+            // Add the marker to the map
+            marker.setMap(map);
+            //create an info window for the challenge with nice formatting and big text
+            var infowindow = new google.maps.InfoWindow({
+              content: '<div style="font-size: 20px; font-weight: bold; text-align: center;">' + name + '</div>' + '<div style="font-size: 16px; text-align: center;">' + description + '</div>'
+            });
+            //add a listener for the marker
+            marker.addListener("click", function () {
+              infowindow.open(map, marker);
+              //update the text section with the q1, q2, q3 and set input boxes for the user to enter a numerical answer
+            document.getElementById("text-section").innerHTML = '<div id="text"><div id="text2"><h2>' + name + '</h2><p>' + description + '</p><p>' + q1 + '</p><input type="number" style="height": "30px" id="answer1" placeholder="Enter your answer" required><p>' + q2 + '</p><input type="number" style="height: 18px" id="answer2" placeholder="Enter your answer" required><p>' + q3 + '</p><input type="number"  style="height: 18px"id="answer3" placeholder="Enter your answer" required><br><button id="submit-button">Submit</button></div>';
+            // add a listener to the submit button and check the answers if they are correct
+            document.getElementById("submit-button").addEventListener("click", function () {
+              // get the answers from the input boxes
+              var answer1 = document.getElementById("answer1").value;
+              var answer2 = document.getElementById("answer2").value;
+              var answer3 = document.getElementById("answer3").value;
+              // check if the answers are correct
+              if (answer1 == a1 && answer2 == a2 && answer3 == a3) {
+                // if they are correct, update the text section with a success message
+                document.getElementById("text-section").innerHTML = '<div id="text"><h3>Well done!</h2><p>You have completed the challenge!</p><p>Go to the next one!</p></div>';
+                // update the user's rank
+                var db = firebase.firestore();
+                var user = firebase.auth().currentUser;
+                var docRef = db.collection("users").doc(user.uid);
+                docRef
+                  .get()
+                  .then(function (doc) {
+                    var rank = doc.data().rank;
+                    // update the rank
+                    if (rank == "newbie") {
+                      rank = "local";
+                    } else if (rank == "local") {
+                      rank = "legend";
+                    } else if (rank == "legend") {
+                      rank = "legendary";
+                    }
+                    // update the rank in the database
+                    db.collection("users")
+                      .doc(user.uid)
+                      .update({
+                        rank: rank,
+                      })
+                      .then(function () {
+                        console.log("User rank successfully updated!");
+                      })
+                      .catch(function (error) {
+                        console.error("Error updating user rank: ", error);
+                      });
+                  })
+                  .catch(function (error) {
+                    console.log("Error getting user document:", error);
+                  });
+              } else {
+                // if the answers are incorrect, update the text section with a failure message
+                document.getElementById("text-section").innerHTML = '<div id="text"><h3>Sorry, try again!</h2><p>Take a better look around ;)</p></div>';
+              }
+            });
+            });
+
+              
+          }
+
+        });
+      });
+
+    const styledMapType = new google.maps.StyledMapType(
+      [
+        { elementType: "geometry", stylers: [{ color: "#ebe3cd" }] },
+        { elementType: "labels.text.fill", stylers: [{ color: "#523735" }] },
+        { elementType: "labels.text.stroke", stylers: [{ color: "#f5f1e6" }] },
+        {
+          featureType: "administrative",
+          elementType: "geometry.stroke",
+          stylers: [{ color: "#c9b2a6" }],
+        },
+        {
+          featureType: "administrative.land_parcel",
+          elementType: "geometry.stroke",
+          stylers: [{ color: "#dcd2be" }],
+        },
+        {
+          featureType: "administrative.land_parcel",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#ae9e90" }],
+        },
+        {
+          featureType: "landscape.natural",
+          elementType: "geometry",
+          stylers: [{ color: "#dfd2ae" }],
+        },
+        {
+          featureType: "poi",
+          elementType: "geometry",
+          stylers: [{ color: "#dfd2ae" }],
+        },
+        {
+          featureType: "poi",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#93817c" }],
+        },
+        {
+          featureType: "poi.park",
+          elementType: "geometry.fill",
+          stylers: [{ color: "#a5b076" }],
+        },
+        {
+          featureType: "poi.park",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#447530" }],
+        },
+        {
+          featureType: "road",
+          elementType: "geometry",
+          stylers: [{ color: "#f5f1e6" }],
+        },
+        {
+          featureType: "road.arterial",
+          elementType: "geometry",
+          stylers: [{ color: "#fdfcf8" }],
+        },
+        {
+          featureType: "road.highway",
+          elementType: "geometry",
+          stylers: [{ color: "#f8c967" }],
+        },
+        {
+          featureType: "road.highway",
+          elementType: "geometry.stroke",
+          stylers: [{ color: "#e9bc62" }],
+        },
+        {
+          featureType: "road.highway.controlled_access",
+          elementType: "geometry",
+          stylers: [{ color: "#e98d58" }],
+        },
+        {
+          featureType: "road.highway.controlled_access",
+          elementType: "geometry.stroke",
+          stylers: [{ color: "#db8555" }],
+        },
+        {
+          featureType: "road.local",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#806b63" }],
+        },
+        {
+          featureType: "transit.line",
+          elementType: "geometry",
+          stylers: [{ color: "#dfd2ae" }],
+        },
+        {
+          featureType: "transit.line",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#8f7d77" }],
+        },
+        {
+          featureType: "transit.line",
+          elementType: "labels.text.stroke",
+          stylers: [{ color: "#ebe3cd" }],
+        },
+        {
+          featureType: "transit.station",
+          elementType: "geometry",
+          stylers: [{ color: "#dfd2ae" }],
+        },
+        {
+          featureType: "water",
+          elementType: "geometry.fill",
+          stylers: [{ color: "#b9d3c2" }],
+        },
+        {
+          featureType: "water",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#92998d" }],
+        },
+      ],
+      { name: "Styled Map" },
+    );
+
+    defaultCategory = "Quiz";
+    selectedCategory = defaultCategory;
+
+        
+        // Create a map object, and include the MapTypeId to add
+    // to the map type control.
+    let location = new google.maps.LatLng(50.1044558, 14.3893992);
+    
+    // Get the user's current location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function (position) {
+        // Create a LatLng object with the user's current position
+        location = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+        // Center the map on the user's current position
+        map.setCenter(userLatLng);
+      }, function () {
+        // Handle errors here
+        console.log("Error getting user's location");
+        //long and lat of Prague
+      });
+    } else {
+      // Geolocation is not supported by this browser
+      console.log("Geolocation is not supported by this browser");
+    }
+    const map = new google.maps.Map(document.getElementById("map"), {
+
+      center: location,
+      zoom: 16,
+      mapTypeControlOptions: {
+        mapTypeIds: ["roadmap", "satellite", "hybrid", "terrain", "styled_map"],
+      },
+    });
+
+    //Associate the styled map with the MapTypeId and set it to display.
+    map.mapTypes.set("styled_map", styledMapType);
+    map.setMapTypeId("styled_map");
+
+  }
+
+
+
+  async function loadMap() {
+    (g => { var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window; b = b[c] || (b[c] = {}); var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => { await (a = m.createElement("script")); e.set("libraries", [...r] + ""); for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]); e.set("callback", c + ".maps." + q); a.src = `https://maps.${c}apis.com/maps/api/js?` + e; d[q] = f; a.onerror = () => h = n(Error(p + " could not load.")); a.nonce = m.querySelector("script[nonce]")?.nonce || ""; m.head.append(a) })); d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)) })
+      ({ key: "AIzaSyAR3Pg3CXwL3O4wwmDYSGEXP3FBceQi3Dg", v: "weekly" });
+    // clear body
+    document.body.innerHTML = '<link rel="stylesheet" href="stylish.css"><div id="user-info-bar">Nickname: <span id="nickname">Loading...</span> - Rank: <span id="rank">Loading...</span></div>';
+
+    initMap();
+
+
+    //set background to  gradient 
+    document.body.style.backgroundImage = 'url("bg2.png")';
+    // style the page so there are 3 sections, one larger one for a map, one for buttons, one for text
+    document.body.style.display = "flex";
+    document.body.style.flexDirection = "column";
+    document.body.style.justifyContent = "space-between";
+    document.body.style.alignItems = "center";
+    document.body.style.height = "100vh";
+
+
+
+
+    // display the user's name and rank
+    var db = firebase.firestore();
+    var user = firebase.auth().currentUser;
+    var docRef = db.collection("users").doc(user.uid);
+    docRef
+      .get()
+      .then(function (doc) {
+        var nickname = doc.data().name;
+        var rank = doc.data().rank;
+
+        // Update the user info bar
+        document.getElementById("nickname").textContent = nickname;
+        document.getElementById("rank").innerHTML = "&#x1F4AF; " + rank;
+      })
+      .catch(function (error) {
+        console.log("Error getting user document:", error);
+      });
+    // add a logout button in the user info bar with id="logout-button" which is appended to the user info bar
+    var logoutElement = document.createElement("button");
+    logoutElement.id = "logout-button";
+    logoutElement.innerHTML = "Logout";
+
+    document.getElementById("user-info-bar").appendChild(logoutElement)
+    // Add a listener for the logout button
+    var logoutButton = document.getElementById("logout-button");
+    console.log(logoutButton);
+
+    // Add a click event listener for the logout button
+    logoutButton.addEventListener("click", function (e) {
+
+      // Log a message to the console when the button is clicked (for debugging)
+      console.log("Logout button clicked");
+
+      // Perform the Firebase sign-out operation
+      firebase
+        .auth()
+        .signOut()
+        .then(function () {
+          // Sign-out successful
+          console.log("User signed out");
+
+          // Redirect to index.html after successful logout
+          window.location.href = "index.html";
+        })
+        .catch(function (error) {
+          // An error occurred during sign-out
+          console.error("Error signing out:", error);
+        });
+    });
+
+    // Add a touchend event listener for the logout button (for mobile devices)
+    logoutButton.addEventListener("touchend", function (e) {
+      e.preventDefault();
+      // You can duplicate the same logic here as in the click event listener if needed.
+    });
+
+    // add a listener for the logout button
+    var logoutButton = document.getElementById("logout-button");
+    logoutButton.addEventListener("click", logout);
+    logoutButton.addEventListener("touchend", logout);
+
+    function logout(e) {
+      console.log("Logout button clicked");
+      // Add your logout code here
+      firebase
+        .auth()
+        .signOut()
+        .then(function () {
+          // Sign-out successful.
+          console.log("User signed out");
+          // redirect to index.html
+          window.location.href = "index.html";
+        })
+        .catch(function (error) {
+          // An error happened
+          console.log("Error signing out:", error);
+        });
+    }
+    // add a map AND FILL it with the map_demo.png
+    document.body.innerHTML += '<div id="map"></div>';
+    // add a button section
+    document.body.innerHTML += '<div id="button-section"></div>';
+    // add a text section
+    document.body.innerHTML += '<div id="text-section"></div>';
+    //add four buttons 'challenges', 'legends', 'eat', 'social work'
+    document.getElementById("button-section").innerHTML += '<button class="button" id="quiz-button">Quiz</button>';
+    document.getElementById("button-section").innerHTML += '<button class="button" id="legends-button">Legends</button>';
+    document.getElementById("button-section").innerHTML += '<button class="button" id="ent-button">Entertainment</button>';
+    document.getElementById("button-section").innerHTML += '<button class="button" id="charity-button">Charity</button>';
+    document.getElementById("button-section").innerHTML += '<button class="button" id="wildlife-button">Wild Life</button>';
+    document.getElementById("wildlife-button").addEventListener("click", function () {
+      updateCategory("Wildlife");
+    });
+
+    // add a text section
+    document.getElementById("text-section").innerHTML += '<div id="text"><h3>Welcome to Explore App!</h2><p>Take part in challenges, quizes, local good deeds, get to know your neighbourhood and have fun!<br> Go from a Newbie to a Local legend and earn badges and achievements :)</div>';
+
+
+    // add a listener for the challenges button
+    document.getElementById("quiz-button").addEventListener("click", function () {
+     updateCategory("quiz");
+    });
+
+    // add a listener for the legends button
+    document.getElementById("legends-button").addEventListener("click", function () {
+      updateCategory("legends");
+    });
+
+    // add a listener for the ent button
+    document.getElementById("ent-button").addEventListener("click", function () {
+      updateCategory("ent");
+    });
+    
+    // add a listener for the charity button
+    document.getElementById("charity-button").addEventListener("click", function () {
+      updateCategory("charity");
+    });
+    
+  }
+
+</script>
