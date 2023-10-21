@@ -1,0 +1,178 @@
+/* Body styles */
+body {
+    background-image: url("bg.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    font-family: 'Arial', sans-serif;
+    color: #333;
+    /* Dark gray text for better readability */
+    margin: 0;
+    /* Remove default margin */
+    padding: 0;
+    /* Remove default padding */
+}
+
+/* Styles for small screens */
+@media (max-width: 576px) {
+    body {
+        background-size: contain;
+    }
+}
+
+/* Styles for large screens */
+@media (min-width: 576px) {
+    body {
+        background-size: cover;
+    }
+}
+
+/* Button styles */
+#google-signin-button {
+    background-color: #4286f4;
+    /* Google blue */
+    border-radius: 25px;
+    border: none;
+    color: #fff;
+    /* White text */
+    font-size: 18px;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+}
+
+/* Form styles */
+#user-data-form {
+    background-color: #4286f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    font-size: 20px;
+    font-family: 'Arial', sans-serif;
+    top: 280px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+input[type="text"] {
+    border: 2px solid #4286f4;
+    border-radius: 5px;
+    font-size: 18px;
+    padding: 10px;
+}
+
+input[type="submit"] {
+    background-color: #4286f4;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 18px;
+    padding: 10px 20px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+/* Rank styles */
+#rank {
+    text-align: center;
+    font-size: 20px;
+    padding: 5px;
+    margin: 10px auto;
+    background-color: #4286f4;
+    color: #fff;
+    border: 2px solid #4286f4;
+    /* Matching color */
+    border-radius: 5px;
+    width: 300px;
+}
+
+/* Map styles */
+#map {
+    height: 90%;
+    width: 90%;
+    background-color: #c5eba2d5;
+    /* Light green with transparency */
+    border: 2px solid #000;
+    border-radius: 5px;
+    margin: 0;
+    /* Removed margin */
+}
+
+/* Button section styles */
+#button-section {
+    display: flex;
+    justify-content: space-around;
+    border: 2px solid #000;
+    border-radius: 5px;
+    background-color: #4286f4;
+    /* Default blue color */
+    padding: 0;
+    /* Removed padding */
+    margin: 5px;
+    /* Adjusted margin */
+}
+
+.button {
+    font-size: 18px;
+    font-family: 'Verdana, Geneva, Tahoma, sans-serif';
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+/* User info bar styles */
+#user-info-bar {
+    background-color: #4286f4;
+    color: #fff;
+    text-align: center;
+    padding: 10px;
+    font-size: 20px;
+}
+
+/* Text section styles */
+#text-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    margin: 8px;
+    background-color: #fff;
+    border-radius: 10px;
+}
+
+#text {
+    font-size: 18px;
+    text-align: center;
+    font-family: 'Arial, Helvetica, sans-serif';
+    overflow: auto;
+    /* Add overflow property for scrolling */
+}
+
+.button#challenges-button {
+    background-color: #4286f4;
+    /* Blue color for Challenges button */
+}
+
+.button#legends-button {
+    background-color: #00c853;
+    /* Green color for Legends button */
+}
+
+.button#eat-button {
+    background-color: #ff5722;
+    /* Orange color for Eat button */
+}
+
+.button#social-work-button {
+    background-color: #e91e63;
+    /* Pink color for Social Work button */
+}

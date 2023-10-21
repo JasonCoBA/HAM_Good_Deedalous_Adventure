@@ -1,157 +1,190 @@
+<title> Explorer </title>
+<!-- optimize layout for mobile devices-->
+<meta name="viewport" content="width=device-width, initial-scale=0.6">
 
-    <title> Explorer </title>
-    <style>
-        body {
-            background-image: url("bg.png");
-            background-position: center;
-
-            background-repeat: no-repeat;
-            background-size: cover;
-        }
-        #google-signin-button {
-            background-color: #4285F4;
-            border-radius: 2px;
-            color: #FFFFFF;
-            height: 36px;
-            left: 45%;
-            top:50%;
-            position: absolute;
-        }
-    </style>
-
-<button id="google-signin-button">Sign in with Google</button>
+<button id="google-signin-button">&#128526;Login with Google</button>
 
 <script src="https://www.gstatic.com/firebasejs/8.7.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.7.0/firebase-auth.js"></script>
- 
+<script src="https://www.gstatic.com/firebasejs/8.7.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.7.0/firebase-firestore.js"></script>
 
-   <script src="https://www.gstatic.com/firebasejs/8.7.0/firebase-database.js"></script>
- <script src="https://www.gstatic.com/firebasejs/8.7.0/firebase-firestore.js"></script>
-
+<style src="stylish.css"></style>
 <script>
- // Your web app's Firebase configuration
- const firebaseConfig = {
-      apiKey: "AIzaSyAR3Pg3CXwL3O4wwmDYSGEXP3FBceQi3Dg",
-      authDomain: "ham-prg.firebaseapp.com",
-      projectId: "ham-prg",
-      storageBucket: "ham-prg.appspot.com",
-      messagingSenderId: "783612161386",
-      appId: "1:783612161386:web:78153c2ba0aed46e51c913",
-      measurementId: "G-XCB39N4N8Z"
-    };
- // Initialize Firebase
- firebase.initializeApp(firebaseConfig);
 
-    // Initialize Firebase
+  let map;
 
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyAR3Pg3CXwL3O4wwmDYSGEXP3FBceQi3Dg",
+    authDomain: "ham-prg.firebaseapp.com",
+    projectId: "ham-prg",
+    storageBucket: "ham-prg.appspot.com",
+    messagingSenderId: "783612161386",
+    appId: "1:783612161386:web:78153c2ba0aed46e51c913",
+    measurementId: "G-XCB39N4N8Z"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
 
-    document.getElementById("google-signin-button").addEventListener("click", function () {
-      var provider = new firebase.auth.GoogleAuthProvider();
-      
-      firebase
-        .auth()
-        .signInWithPopup(provider)
-        .then(function (result) {
-          // User signed in with Google
-          var user = result.user;
-          console.log("Google Sign-In Successful");
-          console.log("User ID: " + user.uid);
-          console.log("User Display Name: " + user.displayName);
-          console.log("User Email: " + user.email);
-          console.log("User Photo URL: " + user.photoURL);
-          // empty body, load the welcome.gif
-          document.body.innerHTML = '<img src="welcome.gif" alt="welcome" style="width:100%;height:100%;object-fit:cover;">';
-          // check if user already had firebase data or not
-          var db = firebase.firestore();
-          var docRef = db.collection("users").doc(user.uid);
-          docRef
-            .get()
-            .then(function (doc) {
-              if (doc.exists) {
-                // user already has data in firestore
-                console.log("User data:", doc.data());
-                // wait 2 seconds, then redirect to map.html
-                setTimeout(function () {
-                  window.location.href = "map.html";
-                }, 2000);
+  // Initialize Firebase
+  document.getElementById("google-signin-button").addEventListener("click", function () {
+    var provider = new firebase.auth.GoogleAuthProvider();
 
-              } else {
-                // user does not have data in firestore
-                console.log("No user data found");
-                // show form to get user data, ask for nickname, email and country but prefill the country and email based on the login info of user
-                document.body.innerHTML = `
-                  <form id="user-data-form">
-                    <h1>Almost there!</h1>
-                    <p>Please enter your details below:</p>
-                    <p>
-                      <label for="name">Nickname:</label>
-                      <input type="text" id="name" name="name" required>
-                    </p>
-                    <p>
-                      <label for="email">Email:</label>
-                      <input type="email" id="email" name="email" required>
-                    </p>
-                    <p>
-                      <label for="country">Country:</label>
-                      <input type="text" id="country" name="country" required>
-                    </p>
-                    <p>
-                      <input type="submit" value="Submit">
-                    </p>
-                  </form>`
-                         
-                 // listen for form submission
-                document.getElementById("user-data-form").addEventListener("submit", function (event) {
-                  event.preventDefault();
-                  // get form data
-                  var name = document.getElementById("name").value;
-                  var country = document.getElementById("country").value;
-                  // write to firestore
-                  db.collection("users")
-                    .doc(user.uid)
-                    .set({
-                      name: name,
-                      email: user.email,
-                      country: country
-                    })
-                    .then(function () {
-                      console.log("New user document successfully written!");
-                      // wait 2 seconds, then redirect to map.html
-                      setTimeout(function () {
-                        window.location.href = "map.html";
-                      }, 2000);
-                    })
-                    .catch(function (error) {
-                      console.error("Error writing new user document: ", error);
-                    });
-                });
+    firebase
+      .auth()
+      .signInWithPopup(provider)
+      .then(function (result) {
+        // User signed in with Google
+        var user = result.user;
+        console.log("Google Sign-In Successful");
+        console.log("User ID: " + user.uid);
 
-                // create user document in firestore
+        // empty body, set the page backgroundoad the welcome.gif
+        //clear body
+        document.body.innerHTML = "";
+        document.body.innerHTML = '<img src="welcome.gif" alt="welcome" style="width:100%;height:100%;object-fit:cover;">';
+        // check if user already had firebase data or not
+        var db = firebase.firestore();
+        var docRef = db.collection("users").doc(user.uid);
+        docRef
+          .get()
+          .then(function (doc) {
+            if (doc.exists) {
+              // user already has data in firestore
+              console.log("User data:", doc.data());
+              // wait 2 seconds, then  load map
+              setTimeout(function () {
+                loadMap();
+              }, 800);
+
+            } else {
+              // user does not have data in firestore
+              console.log("No user data found");
+              document.body.innerHTML = "";
+              document.body.style.backgroundImage = 'url("create.gif")';
+              document.body.style.backgroundSize = 'cover';
+              document.body.style.backgroundPosition = 'center';
+              document.body.style.backgroundRepeat = 'no-repeat';
+              //ask user what their nickname is 
+              document.body.innerHTML += '<form id="user-data-form"><input type="text" id="name" placeholder="Enter your nickname" required><input type="submit" value="Submit"></form></div>';
+              // listen for form submission
+              document.getElementById("user-data-form").addEventListener("submit", function (event) {
+                event.preventDefault();
+                // get form data
+                var name = document.getElementById("name").value;
+                var rank = "newbie"
+                // write to firestore
                 db.collection("users")
                   .doc(user.uid)
                   .set({
-                    name: user.displayName,
-                    email: user.email,
-                    country: user.country,
-                    rank: user.rank
+                    name: name,
+                    rank: rank,
                   })
                   .then(function () {
                     console.log("New user document successfully written!");
-                    
+                    // wait 2 seconds, then redirect to map.html
+                    setTimeout(function () {
+                      // clear the body
+                      document.body.innerHTML = "";
+                      // load the get_started.gif
+                      document.body.innerHTML = "";
+                      document.body.style.backgroundImage = 'url("get_started.gif")';
+                      document.body.style.backgroundSize = 'cover';
+                      document.body.style.backgroundPosition = 'center';
+                      document.body.style.backgroundRepeat = 'no-repeat';
+                      // add a continue button
+                      document.body.innerHTML += '<button id="continue-button">Continue</button>';
+                      // if button is clicked, clear body 
+
+                      document.getElementById("continue-button").addEventListener("click", function () {
+                        loadMap();
+                      });
+                    }, 800);
                   })
                   .catch(function (error) {
                     console.error("Error writing new user document: ", error);
                   });
-              }
-            })
-            .catch(function (error) {
-              console.log("Error getting user document:", error);
-            });
-        })
-        .catch(function (error) {
-          // Handle errors
-          console.error("Google Sign-In Failed: " + error.message);
-        });
+              });
+
+
+            }
+          })
+          .catch(function (error) {
+            console.log("Error getting user document:", error);
+          });
+      })
+      .catch(function (error) {
+        // Handle errors
+        console.error("Google Sign-In Failed: " + error.message);
+      });
+  });
+
+
+  async function initMap() {
+    const { Map } = await google.maps.importLibrary("maps");
+    map = new Map(document.getElementById("map"), {
+      center: { lat: -34.397, lng: 150.644 },
+      zoom: 8,
     });
-  </script>
-  
+  }
+
+  async function loadMap() {
+    (g => { var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window; b = b[c] || (b[c] = {}); var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => { await (a = m.createElement("script")); e.set("libraries", [...r] + ""); for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]); e.set("callback", c + ".maps." + q); a.src = `https://maps.${c}apis.com/maps/api/js?` + e; d[q] = f; a.onerror = () => h = n(Error(p + " could not load.")); a.nonce = m.querySelector("script[nonce]")?.nonce || ""; m.head.append(a) })); d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)) })
+      ({ key: "AIzaSyAwBIF9tRIzhy7F-fRlxiclnSd05gMWrCU", v: "weekly" });
+    // clear body
+    document.body.innerHTML = '<div id="user-info-bar">Nickname: <span id="nickname">Loading...</span> - Rank: <span id="rank">Loading...</span></div>';
+    initMap();
+
+    //set background to  gradient 
+    document.body.style.backgroundImage = 'url("bg2.png")';
+    // style the page so there are 3 sections, one larger one for a map, one for buttons, one for text
+    document.body.style.display = "flex";
+    document.body.style.flexDirection = "column";
+    document.body.style.justifyContent = "space-between";
+    document.body.style.alignItems = "center";
+    document.body.style.height = "100vh";
+
+
+    // display the user's name and rank
+    var db = firebase.firestore();
+    var user = firebase.auth().currentUser;
+    var docRef = db.collection("users").doc(user.uid);
+    docRef
+      .get()
+      .then(function (doc) {
+        var nickname = doc.data().name;
+        var rank = doc.data().rank;
+
+        // Update the user info bar
+        document.getElementById("nickname").textContent = nickname;
+        document.getElementById("rank").innerHTML = "&#x1F4AF; " + rank;
+      })
+      .catch(function (error) {
+        console.log("Error getting user document:", error);
+      });
+
+    // add a map AND FILL it with the map_demo.png
+    document.body.innerHTML += '<div id="map"></div>';
+    // add a button section
+    document.body.innerHTML += '<div id="button-section"></div>';
+    // add a text section
+    document.body.innerHTML += '<div id="text-section"></div>';
+    //add four buttons 'challenges', 'legends', 'eat', 'social work'
+    document.getElementById("button-section").innerHTML += '<button class="button" id="challenges-button">Challenges</button>';
+    document.getElementById("button-section").innerHTML += '<button class="button" id="legends-button">Legends</button>';
+    document.getElementById("button-section").innerHTML += '<button class="button" id="eat-button">Eat</button>';
+    document.getElementById("button-section").innerHTML += '<button class="button" id="social-work-button">Charity</button>';
+    // add a text section
+    document.getElementById("text-section").innerHTML += '<div id="text"><h3>Welcome to Explore App!</h2><p>Take part in challenges, quizes, local good deeds, get to know your neighbourhood and have fun!<br> Go from a Newbie to a Local legend and earn badges and achievements :)</div>';
+
+    // add a listener for the challenges button
+
+    // add a listener for the legends button
+
+    // add a listener for the eat button
+
+    // add a listener for the social work button
+  }
+
+</script>
