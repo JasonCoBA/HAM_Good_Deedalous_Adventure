@@ -2,7 +2,7 @@
 # HAM_Good_Deedalous_Adventure
 Human Assisted Machines (Prague)
 consists of 5:
-Jason, Artur, Olga, Cris, Christian.
+**C**ristian, **C**ris, **A**rthur,**O**lga, Ja**s**on
 
 **Good Deedalous's Adventure** is the codename for our *cultural adventures App*. Which guides you through local cultures, legends, challenges and charitable activities.
 
