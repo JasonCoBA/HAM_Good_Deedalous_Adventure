@@ -1,0 +1,157 @@
+
+    <title> Explorer </title>
+    <style>
+        body {
+            background-image: url("bg.png");
+            background-position: center;
+
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+        #google-signin-button {
+            background-color: #4285F4;
+            border-radius: 2px;
+            color: #FFFFFF;
+            height: 36px;
+            left: 45%;
+            top:50%;
+            position: absolute;
+        }
+    </style>
+
+<button id="google-signin-button">Sign in with Google</button>
+
+<script src="https://www.gstatic.com/firebasejs/8.7.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.7.0/firebase-auth.js"></script>
+ 
+
+   <script src="https://www.gstatic.com/firebasejs/8.7.0/firebase-database.js"></script>
+ <script src="https://www.gstatic.com/firebasejs/8.7.0/firebase-firestore.js"></script>
+
+<script>
+ // Your web app's Firebase configuration
+ const firebaseConfig = {
+      apiKey: "AIzaSyAR3Pg3CXwL3O4wwmDYSGEXP3FBceQi3Dg",
+      authDomain: "ham-prg.firebaseapp.com",
+      projectId: "ham-prg",
+      storageBucket: "ham-prg.appspot.com",
+      messagingSenderId: "783612161386",
+      appId: "1:783612161386:web:78153c2ba0aed46e51c913",
+      measurementId: "G-XCB39N4N8Z"
+    };
+ // Initialize Firebase
+ firebase.initializeApp(firebaseConfig);
+
+    // Initialize Firebase
+
+
+    document.getElementById("google-signin-button").addEventListener("click", function () {
+      var provider = new firebase.auth.GoogleAuthProvider();
+      
+      firebase
+        .auth()
+        .signInWithPopup(provider)
+        .then(function (result) {
+          // User signed in with Google
+          var user = result.user;
+          console.log("Google Sign-In Successful");
+          console.log("User ID: " + user.uid);
+          console.log("User Display Name: " + user.displayName);
+          console.log("User Email: " + user.email);
+          console.log("User Photo URL: " + user.photoURL);
+          // empty body, load the welcome.gif
+          document.body.innerHTML = '<img src="welcome.gif" alt="welcome" style="width:100%;height:100%;object-fit:cover;">';
+          // check if user already had firebase data or not
+          var db = firebase.firestore();
+          var docRef = db.collection("users").doc(user.uid);
+          docRef
+            .get()
+            .then(function (doc) {
+              if (doc.exists) {
+                // user already has data in firestore
+                console.log("User data:", doc.data());
+                // wait 2 seconds, then redirect to map.html
+                setTimeout(function () {
+                  window.location.href = "map.html";
+                }, 2000);
+
+              } else {
+                // user does not have data in firestore
+                console.log("No user data found");
+                // show form to get user data, ask for nickname, email and country but prefill the country and email based on the login info of user
+                document.body.innerHTML = `
+                  <form id="user-data-form">
+                    <h1>Almost there!</h1>
+                    <p>Please enter your details below:</p>
+                    <p>
+                      <label for="name">Nickname:</label>
+                      <input type="text" id="name" name="name" required>
+                    </p>
+                    <p>
+                      <label for="email">Email:</label>
+                      <input type="email" id="email" name="email" required>
+                    </p>
+                    <p>
+                      <label for="country">Country:</label>
+                      <input type="text" id="country" name="country" required>
+                    </p>
+                    <p>
+                      <input type="submit" value="Submit">
+                    </p>
+                  </form>`
+                         
+                 // listen for form submission
+                document.getElementById("user-data-form").addEventListener("submit", function (event) {
+                  event.preventDefault();
+                  // get form data
+                  var name = document.getElementById("name").value;
+                  var country = document.getElementById("country").value;
+                  // write to firestore
+                  db.collection("users")
+                    .doc(user.uid)
+                    .set({
+                      name: name,
+                      email: user.email,
+                      country: country
+                    })
+                    .then(function () {
+                      console.log("New user document successfully written!");
+                      // wait 2 seconds, then redirect to map.html
+                      setTimeout(function () {
+                        window.location.href = "map.html";
+                      }, 2000);
+                    })
+                    .catch(function (error) {
+                      console.error("Error writing new user document: ", error);
+                    });
+                });
+
+                // create user document in firestore
+                db.collection("users")
+                  .doc(user.uid)
+                  .set({
+                    name: user.displayName,
+                    email: user.email,
+                    country: user.country,
+                    rank: user.rank
+                  })
+                  .then(function () {
+                    console.log("New user document successfully written!");
+                    
+                  })
+                  .catch(function (error) {
+                    console.error("Error writing new user document: ", error);
+                  });
+              }
+            })
+            .catch(function (error) {
+              console.log("Error getting user document:", error);
+            });
+        })
+        .catch(function (error) {
+          // Handle errors
+          console.error("Google Sign-In Failed: " + error.message);
+        });
+    });
+  </script>
+  
